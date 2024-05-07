@@ -9,7 +9,7 @@ DIGIT_GRAMMAR = {
 
 MOD_DIGIT_GRAMMAR = {
     "<start>": ["<number>"],
-    ("<number>", (1, 20)): ["<digit>", "<digit><number>"],
+    ("<number>", (1, 15)): ["<digit>", "<digit><number>"],
     "<digit>": ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"],
 }
 
@@ -24,16 +24,16 @@ DIGIT_GRAMMAR = {
 
 EXPR_GRAMMAR = {
     "<start>": ["<expr>"],
-    "<expr>": ["<term> + <expr>", "<term> - <expr>", "<expr> * <term>", "<expr> / <term>", "<term>", "(<expr>)", "<term> * <expr> / <term>" ],
-    "<term>": ["+<term>", "-<term>", "<integer>.<integer>", "<integer>"],
+    "<expr>": ["<term> + <expr>", "<term> - <expr>", "<expr> * <term>", "<expr> / <term>", "<term>", "(<expr>)" ],
+    "<term>": ["<integer>.<integer>", "<integer>"],
     "<integer>": ["<digit><integer>", "<digit>"],
     "<digit>": ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"]
 }
 
 MOD_EXPR_GRAMMAR = {
     "<start>": ["<expr>"],
-    ("<expr>", (2, 11)): ["<term> + <expr>", "<term> - <expr>", "<term> * <expr>", "<term> / <expr>", "<term>", "(<expr>)", "<expr> / <term> * <expr>"],
-    "<term>": ["+<term>", "-<term>", "<integer>.<integer>", "<integer>"],
+    ("<expr>", (9, 9, 16, 16)): ["<term> + <expr>", "<term> - <expr>", "<term> * <expr>", "<term> / <expr>", "<term>", "(<expr>)"],
+    "<term>": ["<integer>"],
     "<integer>": ["<digit><integer>", "<digit>"],
     "<digit>": ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"]
 }

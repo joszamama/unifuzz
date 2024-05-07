@@ -1,7 +1,9 @@
 import random
 import time
 import math
+from collections import Counter
 import matplotlib.pyplot as plt
+import numpy as np
 
 from fuzzingbook.GrammarFuzzer import GrammarFuzzer
 
@@ -171,42 +173,53 @@ def fuzz(grammar: dict, preference: str) -> str:
     return word
 
 def main():
-    # Results for the first fuzzer
-    X = 100000
+    X = 20000
 
     results1 = []
-    fuzzer = GrammarFuzzer(DIGIT_GRAMMAR)
+    fuzzer = GrammarFuzzer(EXPR_GRAMMAR)
     st_r1 = time.time()
     for i in range(X):
-       input_str = fuzz(MOD_EXPR_GRAMMAR_1, "random")
-       results1.append(len(input_str))
-
+        input_str = fuzzer.fuzz()
+        results1.append(len(input_str))
     t_r1 = time.time() - st_r1
 
     print("first fuzzer done")
-    # Results for the second fuzzer
     results2 = []
     st_r2 = time.time()
-
     for i in range(X):
-        input_str = fuzz(MOD_EXPR_GRAMMAR_2, "random")
+        input_str = fuzz(MOD_EXPR_GRAMMAR, "random")
         results2.append(len(input_str))
-
-
     t_r2 = time.time() - st_r2
-    # Creating a subplot with 1 row and 2 columns
-    fig, axs = plt.subplots(1, 2, figsize=(12, 6))
 
-    # Plotting the first histogram
-    axs[0].hist(results1, bins=10)
-    axs[0].set_title('Histogram of UniFuzz (norm opt), in ' + str(t_r1) + "s")
+    # Count occurrences for each number of operators
+    count1 = Counter(results1)
+    count2 = Counter(results2)
 
-    # Plotting the second histogram
-    axs[1].hist(results2, bins=10)
-    axs[1].set_title('Histogram of UniFuzz (inv opt), in ' + str(t_r2) + "s")
+    # Combine all keys and sort them to make sure both fuzzers are compared at every possible count of operators
+    all_keys = sorted(set(count1.keys()).union(set(count2.keys())))
+    frequencies1 = [count1[k] for k in all_keys]
+    frequencies2 = [count2[k] for k in all_keys]
 
+    # Set bar width and positions
+    bar_width = 0.35
+    index = np.arange(len(all_keys))
+
+    plt.figure(figsize=(12, 6))
+    plt.bar(index, frequencies1, bar_width, alpha=0.6, color='skyblue', label=f'SoA in {t_r1:.2f}s')
+    plt.bar(index + bar_width, frequencies2, bar_width, alpha=0.6, color='salmon', label=f'UniFuzz in {t_r2:.2f}s')
+
+    plt.xlabel('# of Multiplications', fontsize=25)
+    plt.ylabel('Frequency')
+    plt.title('Distribution of # of Multiplications')
+    plt.yticks(fontsize=15)
+    plt.xticks(index + bar_width / 2, all_keys, rotation=-45, fontsize=15)  # Positioning the ticks
+    plt.legend(fontsize=25)
+    plt.tight_layout()
     plt.show()
     print("done")
+
+# Remember to check the imports and module specifics based on your actual working environment.
+
 
 
 if __name__ == "__main__":
