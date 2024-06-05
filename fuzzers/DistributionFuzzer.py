@@ -1,12 +1,14 @@
 import random
 import time
-import math
+
+from collections import Counter
 import matplotlib.pyplot as plt
+import numpy as np
 
-from fuzzingbook.GrammarFuzzer import GrammarFuzzer
-from fuzzingbook.ProbabilisticGrammarFuzzer import ProbabilisticGrammarFuzzer, opts
+from fuzzingbook.ProbabilisticGrammarFuzzer import ProbabilisticGrammarFuzzer
 
-from grammars.digit_grammar import MOD_DIGIT_GRAMMAR, DIGIT_GRAMMAR, EXPR_GRAMMAR, MOD_EXPR_GRAMMAR
+from grammars.digit_grammar import MOD_DIGIT_GRAMMAR, DIGIT_GRAMMAR
+
 
 def extract_loops_and_exits(grammar: dict, key: tuple) -> dict:
     loop_nonterminals = []
@@ -18,7 +20,7 @@ def extract_loops_and_exits(grammar: dict, key: tuple) -> dict:
             for pair in keys:
                 if pair == key:
                     for nonterminal in grammar[keys]:
-                        if "<" and ">" in nonterminal and key in nonterminal and "*" in nonterminal:
+                        if "<" and ">" in nonterminal and key in nonterminal:
                             loop_nonterminals.append(nonterminal)
                         elif "<" and ">" in nonterminal and key not in nonterminal:
                             exit_nonterminals.append(nonterminal)
@@ -27,7 +29,7 @@ def extract_loops_and_exits(grammar: dict, key: tuple) -> dict:
         else:
             if keys == key:
                 for nonterminal in grammar[keys]:
-                    if "<" and ">" in nonterminal and key in nonterminal and "*" in nonterminal:
+                    if "<" and ">" in nonterminal and key in nonterminal:
                         loop_nonterminals.append(nonterminal)
                     elif "<" and ">" in nonterminal and key not in nonterminal:
                         exit_nonterminals.append(nonterminal)
@@ -111,15 +113,6 @@ def fuzz(grammar: dict, preference: str) -> str:
                 expansions = choice
             elif len(repeatance) == 2 and preference == "random":
                 expansions = random.randint(repeatance[0], repeatance[1])
-            elif len(repeatance) == 2 and preference == "low":
-                expansions = random.randint(
-                    repeatance[0], (repeatance[1] - repeatance[0]) / 3)
-            elif len(repeatance) == 2 and preference == "center":
-                expansions = random.randint(
-                    repeatance[1] - repeatance[0] / 3, (repeatance[1] - repeatance[0]) / 1.5)
-            elif len(repeatance) == 2 and preference == "high":
-                expansions = random.randint(
-                    (repeatance[1] - repeatance[0]) / 1.5, repeatance[1])
 
             while expansions > 1:
                 word += random.choice(extract_loops_and_exits(grammar,
@@ -158,14 +151,7 @@ def fuzz(grammar: dict, preference: str) -> str:
                 expansions = choice
             elif len(repeatance) == 2 and preference == "random":
                 expansions = random.randint(repeatance[0], repeatance[1])
-            elif len(repeatance) == 2 and preference == "low":
-                expansions = random.randint(
-                    1, (repeatance[1] - repeatance[0]) // 3)
-            elif len(repeatance) == 2 and preference == "center":
-                expansions = random.randint(
-                    (repeatance[1] - repeatance[0]) // 2, (repeatance[1] - repeatance[0]) // 1.5)
-            elif len(repeatance) == 2 and preference == "high":
-                expansions = random.randint(repeatance[0], repeatance[1]*2)
+
             while expansions > 1:
                 word = word.replace(start_token, random.choice(
                     extract_loops_and_exits(grammar, (start_token))["loop_nonterminals"]), 1)
@@ -186,42 +172,67 @@ def fuzz(grammar: dict, preference: str) -> str:
 
     return word
 
-
 def main():
-    # Results for the first fuzzer
-    X = 10000
-    results1 = []
-    fuzzer = ProbabilisticGrammarFuzzer(EXPR_GRAMMAR)
+    X = 25000
 
+    results1 = []
+    fuzzer = ProbabilisticGrammarFuzzer(DIGIT_GRAMMAR, min_nonterminals=4)
     st_r1 = time.time()
     for i in range(X):
-        results1.append(fuzzer.fuzz().count("*"))
+        input_str = fuzzer.fuzz()
+        print(i)
+        results1.append(len(input_str))
     t_r1 = time.time() - st_r1
 
     print("first fuzzer done")
-    # Results for the second fuzzer
     results2 = []
-
     st_r2 = time.time()
     for i in range(X):
-
-        input_str = fuzz(MOD_EXPR_GRAMMAR, "random")
-        results2.append(input_str.count("*"))
+        input_str = fuzz(MOD_DIGIT_GRAMMAR, "random")
+        print(i)
+        results2.append(len(input_str))
     t_r2 = time.time() - st_r2
 
-    # Creating a subplot with 1 row and 2 columns
-    fig, axs = plt.subplots(1, 2, figsize=(12, 6))
+    print("third fuzzer done")
+    # Count occurrences for each number of operators
+    count1 = Counter(results1)
+    count2 = Counter(results2)
 
-    # Plotting the first histogram
-    axs[0].hist(results1, bins=10)
-    axs[0].set_title('Histogram of SoA, in ' + str(t_r1) + "s")
+    # Combine all keys and sort them to make sure both fuzzers are compared at every possible count of operators
+    all_keys = sorted(set(count1.keys()).union(set(count2.keys())))
 
-    # Plotting the second histogram
-    axs[1].hist(results2, bins=10)
-    axs[1].set_title('Histogram of UniFuzz, in ' + str(t_r2) + "s")
+    # Filter keys to include only values from 0 to 50
 
+    frequencies1 = [count1[k] for k in all_keys]
+    frequencies2 = [count2[k] for k in all_keys]
+
+
+    # Set bar width and positions
+    bar_width = 0.35
+    index = np.arange(len(all_keys))
+    
+    
+    plt.figure(figsize=(12, 6))
+    plt.bar(index, frequencies1, bar_width, alpha=0.6, color='skyblue', label=f'SoA GrammarFuzzer in {t_r1:.2f}s')
+    plt.bar(index + bar_width, frequencies2, bar_width, alpha=0.6, color='salmon', label=f'Our approach in {t_r2:.2f}s')
+
+    plt.xlabel('Input Length', fontsize=30)
+    plt.ylabel('Frequency', fontsize=30)
+    plt.title('Distribution of Input Length (for ' + str(X) + ' inputs)', fontsize=40)
+    
+    plt.yticks(fontsize=20)
+
+    # Or, show only every nth label on the x-axis
+    n = 1000  # Show every 5th label
+    plt.xticks(index[::n] + bar_width / 2, all_keys[::n], rotation=-45, fontsize=13)
+    plt.legend(fontsize=20)
+
+    plt.tight_layout()
     plt.show()
     print("done")
+
+# Remember to check the imports and module specifics based on your actual working environment.
+
 
 
 if __name__ == "__main__":

@@ -1,11 +1,10 @@
 import random
 import time
-import math
 import matplotlib.pyplot as plt
 
 from fuzzingbook.GrammarFuzzer import GrammarFuzzer
 
-from grammars.digit_grammar import MOD_DIGIT_GRAMMAR, DIGIT_GRAMMAR, EXPR_GRAMMAR, MOD_EXPR_GRAMMAR
+from grammars.digit_grammar import EXPR_GRAMMAR, MOD_EXPR_GRAMMAR
 
 
 def extract_loops_and_exits(grammar: dict, key: tuple) -> dict:
