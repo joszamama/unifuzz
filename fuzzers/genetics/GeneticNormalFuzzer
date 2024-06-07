@@ -1,17 +1,20 @@
-import time
 import random
 import numpy as np
 from deap import base, creator, tools, algorithms
 import matplotlib.pyplot as plt
+from scipy.stats import norm
 
-# Define the evaluation function for uniform distribution
+# Define the desired mean and standard deviation for the normal distribution within the new range
+DESIRED_MEAN = (120 + 20) / 2
+DESIRED_STD = (120 - 20) / 6  # Assuming a range of 6 standard deviations for the normal distribution
+
+# Define the evaluation function
 def evalFitness(individual):
-    counts, _ = np.histogram(individual, bins=range(20, 91, 5))  # Create bins for uniformity check
-    expected_count = len(individual) / len(counts)  # Expected count per bin
-    fitness = np.sum((counts - expected_count) ** 2)  # Sum of squared deviations from uniformity
-    return fitness,
+    mean_diff = abs(np.mean(individual) - DESIRED_MEAN)
+    std_diff = abs(np.std(individual) - DESIRED_STD)
+    return mean_diff + std_diff,
 
-# Define the problem as a minimization (we want to minimize the deviation from uniform distribution)
+# Define the problem as a minimization (we want to minimize the difference from the desired mean and std dev)
 creator.create("FitnessMin", base.Fitness, weights=(-1.0,))
 creator.create("Individual", list, fitness=creator.FitnessMin)
 
@@ -37,7 +40,7 @@ def main():
     pop = toolbox.population(n=100)
     
     # Increase the number of generations
-    NGEN = 2500  # More iterations for better results
+    NGEN = 50000  # More iterations for better results
     CXPB, MUTPB = 0.5, 0.2
     
     # Define the statistics to be collected
@@ -47,15 +50,9 @@ def main():
     stats.register("min", np.min)
     stats.register("max", np.max)
     
-    # Start the timer
-    st = time.time()
     # Run the Genetic Algorithm
-    pop, logbook = algorithms.eaSimple(pop, toolbox, cxpb=CXPB, mutpb=MUTPB, ngen=NGEN, stats=stats, verbose=False)
+    pop, logbook = algorithms.eaSimple(pop, toolbox, cxpb=CXPB, mutpb=MUTPB, ngen=NGEN, stats=stats, verbose=True)
     
-    # Stop the timer
-    t = time.time() - st
-    print(f"Time taken: {t}")
-
     # Get the best individual
     best_ind = tools.selBest(pop, 1)[0]
     
@@ -68,7 +65,13 @@ def plot_population(population):
     plt.figure(figsize=(10, 6))
     
     # Plot the histogram
-    plt.hist(population, bins=range(10, 150, 5), density=True, alpha=0.6, color='g', edgecolor='black')
+    plt.hist(population, bins=15, density=True, alpha=0.6, color='g', edgecolor='black')
+    
+    # Plot the normal distribution curve
+    xmin, xmax = 20, 120
+    x = np.linspace(xmin, xmax, 100)
+    p = norm.pdf(x, DESIRED_MEAN, DESIRED_STD)
+    plt.plot(x, p, 'k', linewidth=2)
     
     plt.title('Histogram of the Best Population')
     plt.xlabel('Value')
