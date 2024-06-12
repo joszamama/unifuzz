@@ -14,7 +14,8 @@ def create_scaffolding(grammar: dict, inputs: int) -> list:
 def instanciate_scaffolding(input_set: list, distributed_values: list, attribute: str) -> list:
     distributed_set = []
     for inp in input_set:
-        string = inp.replace(attribute, str(distributed_values.pop(0)))
+        to_replace = str(distributed_values.pop(0)) or '-10'
+        string = inp.replace(attribute, to_replace)
         distributed_set.append(string)
     return distributed_set
 

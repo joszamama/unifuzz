@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 from scipy.stats import norm
 
 
-def generate_population(min_val, max_val, distribution, ngen, plot=False, verbose=False):
+def generate_population(size, min_val, max_val, distribution, ngen, plot=False, verbose=False):
     # Define the desired distribution characteristics
     if distribution == 'normal':
         DESIRED_MEAN = (max_val + min_val) / 2
@@ -51,7 +51,7 @@ def generate_population(min_val, max_val, distribution, ngen, plot=False, verbos
 
     # Structure initializers
     toolbox.register("individual", tools.initRepeat,
-                     creator.Individual, toolbox.attr_int, n=50)
+                     creator.Individual, toolbox.attr_int, n=size)
     toolbox.register("population", tools.initRepeat, list, toolbox.individual)
 
     # Register the evaluation, crossover, mutation, and selection functions
