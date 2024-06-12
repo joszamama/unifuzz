@@ -125,6 +125,6 @@ def generate_population(size, min_val, max_val, distribution, ngen, plot=False, 
 
 
 if __name__ == "__main__":
-    best_population = generate_population(
+    best_population = generate_population(30,
         min_val=20, max_val=80, distribution='normal', ngen=1000, plot=True)
     print(best_population)

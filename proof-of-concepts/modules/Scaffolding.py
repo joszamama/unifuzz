@@ -1,7 +1,5 @@
 from fuzzingbook.GrammarFuzzer import EvenFasterGrammarFuzzer
 
-from grammars.json import JSON_GRAMMAR
-
 
 def create_scaffolding(grammar: dict, inputs: int) -> list:
     input_set = []
@@ -14,13 +12,23 @@ def create_scaffolding(grammar: dict, inputs: int) -> list:
 def instanciate_scaffolding(input_set: list, distributed_values: list, attribute: str) -> list:
     distributed_set = []
     for inp in input_set:
-        to_replace = str(distributed_values.pop(0)) or '-10'
-        string = inp.replace(attribute, to_replace)
+        string = inp.replace(attribute, str(distributed_values.pop(0)))
         distributed_set.append(string)
     return distributed_set
 
 
 if __name__ == "__main__":
+
+    JSON_GRAMMAR = {
+        "<start>": ["{<json>}"],
+        "<json>": ["<nameAttr>, <genderAttr>, <ageAttr>"],
+        "<nameAttr>": ['"Name": "<name>"'],
+        "<genderAttr>": ['"Gender": "<gender>"'],
+        "<ageAttr>": ['"Age": >age<'],
+        "<name>": ["John", "Jane", "Jim", "Jill", "Jack"],
+        "<gender>": ["M", "F"],
+    }
+
     input_set = create_scaffolding(JSON_GRAMMAR, 10)
     print(input_set)
 
