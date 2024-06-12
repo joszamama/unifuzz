@@ -1,3 +1,5 @@
 fuzzingbook
 matplotlib
 numpy
+deap
+scipy
