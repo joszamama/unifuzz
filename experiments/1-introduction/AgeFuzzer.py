@@ -1,17 +1,14 @@
-from collections import Counter
-import matplotlib.pyplot as plt
 import numpy as np
-
 import statistics
-from collections import Counter
+import matplotlib.pyplot as plt
 
+from collections import Counter
 from fuzzingbook.GrammarFuzzer import GrammarFuzzer
 
-from grammars.digit_grammar import DIGIT_GRAMMAR
+from grammars.digit import DIGIT_GRAMMAR
 
 
 def main():
-    
     X = 10000
 
     results = []
@@ -33,7 +30,7 @@ def main():
     print(f"Count of Instances Over 122: {count_over_122}")
 
     # Exclude values over 122
-    
+
     results = [x for x in results if x <= 122]
 
     # Compute statistical data
@@ -47,6 +44,7 @@ def main():
     print(f"Standard Deviation: {std_deviation}")
     print(f"Most Common Values: {most_common_values}")
     print(f"Count of Instances Over 122: {count_over_122}")
+
 
 if __name__ == "__main__":
     main()

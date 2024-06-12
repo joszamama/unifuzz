@@ -1,6 +1,6 @@
-from Grammar import JSON_GRAMMAR
-from Scaffolding import create_scaffolding, instanciate_scaffolding
-from Sampler import generate_population
+from grammars.json import JSON_GRAMMAR
+from modules.Scaffolding import create_scaffolding, instanciate_scaffolding
+from modules.Optimizer import generate_population
 
 
 def fuzz(grammar: dict, inputs: int, attribute: str, distribution: str, min_val: int, max_val: int, ngen: int, plot: bool = False, verbose: bool = False) -> list:

@@ -1,6 +1,6 @@
 from fuzzingbook.GrammarFuzzer import EvenFasterGrammarFuzzer
 
-from Grammar import JSON_GRAMMAR
+from grammars.json import JSON_GRAMMAR
 
 
 def create_scaffolding(grammar: dict, inputs: int) -> list:
