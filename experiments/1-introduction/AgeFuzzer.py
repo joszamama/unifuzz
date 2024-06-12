@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 from collections import Counter
 from fuzzingbook.GrammarFuzzer import GrammarFuzzer
 
-from grammars.digit import DIGIT_GRAMMAR
+from grammar.digit import DIGIT_GRAMMAR
 
 
 def main():

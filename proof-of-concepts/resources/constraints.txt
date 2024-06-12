@@ -1,0 +1,2 @@
+>age< distribution=uniform min=18 max=80
+>budget< distribution=normal min=2000 max=8000

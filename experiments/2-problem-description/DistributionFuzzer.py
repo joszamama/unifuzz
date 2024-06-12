@@ -8,7 +8,7 @@ from collections import Counter
 from fuzzingbook.GrammarFuzzer import GrammarFuzzer
 from fuzzingbook.ProbabilisticGrammarFuzzer import ProbabilisticGrammarFuzzer
 
-from grammars.digit import DIGIT_GRAMMAR, PROB_DIGIT_GRAMMAR
+from grammar.digit import DIGIT_GRAMMAR, PROB_DIGIT_GRAMMAR
 
 
 def main():

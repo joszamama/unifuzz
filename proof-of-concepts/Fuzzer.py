@@ -1,26 +1,19 @@
 from modules.Scaffolding import create_scaffolding, instanciate_scaffolding
-from modules.Optimizer import generate_population
+from modules.Optimizer import read_constraints, generate_population
 
+from resources.grammar import JSON_GRAMMAR
 
-def fuzz(grammar: dict, inputs: int, attribute: str, distribution: str, min_val: int, max_val: int, ngen: int, plot: bool = False, verbose: bool = False) -> list:
+def fuzz(grammar: dict, inputs: int, constraints_file: str, ngen: int = 1000, plot: bool = False, verbose: bool = False) -> list:
+    constraints = read_constraints(constraints_file)
     scaffolding = create_scaffolding(grammar, inputs)
-    distributed_values = generate_population(
-        inputs, min_val, max_val, distribution, ngen, plot, verbose)
-    return instanciate_scaffolding(scaffolding, distributed_values, attribute)
+    populations = generate_population(inputs, constraints, ngen=ngen, plot=plot, verbose=verbose)
+    
+    for attribute, values in populations.items():
+        scaffolding = instanciate_scaffolding(scaffolding, values, attribute)
+
+    return scaffolding
 
 
 if __name__ == "__main__":
-
-    JSON_GRAMMAR = {
-        "<start>": ["{<json>}"],
-        "<json>": ["<nameAttr>, <genderAttr>, <ageAttr>"],
-        "<nameAttr>": ['"Name": "<name>"'],
-        "<genderAttr>": ['"Gender": "<gender>"'],
-        "<ageAttr>": ['"Age": >age<'],
-        "<name>": ["John", "Jane", "Jim", "Jill", "Jack"],
-        "<gender>": ["M", "F"],
-    }
-
-    distributed_list = fuzz(JSON_GRAMMAR, 100, ">age<",
-                            "uniform", 20, 120, 1, plot=False, verbose=False)
-    print(distributed_list)
+    result = fuzz(JSON_GRAMMAR, 1000, './proof-of-concepts/resources/constraints.txt', 1000, plot=True, verbose=True)
+    print(result)
