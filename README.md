@@ -175,7 +175,3 @@ The `related-work` directory contains a collection of research papers that provi
 ## Contributing
 
 Contributions are welcome! Please fork the repository and submit pull requests for any enhancements or bug fixes.
-
-## License
-
-This project is licensed under the MIT License. See the `LICENSE` file for more details.
